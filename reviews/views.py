@@ -4,10 +4,12 @@ from .models import Review
 from .serializers import ReviewSerializer
 from rest_framework import generics
 from django.contrib.auth.models import User
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
+from rest_framework.authentication import TokenAuthentication
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -37,3 +39,16 @@ class RegisterView(generics.CreateAPIView):
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         })
+        
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def user_profile(request):
+    user = request.user
+    data = {
+        'username': user.username,
+        'email': user.email,
+        'firstName': user.first_name,
+        'lastName': user.last_name,
+    }
+    return Response(data)
