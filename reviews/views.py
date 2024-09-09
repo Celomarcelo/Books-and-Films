@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets
 from .models import Review
-from .serializers import ReviewSerializer
+from .serializers import ReviewSerializer, UserSerializer
 from rest_framework import generics
 from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -48,10 +48,7 @@ class RegisterView(generics.CreateAPIView):
 @authentication_classes([JWTAuthentication])
 def user_profile(request):
     user = request.user
-    data = {
-        'username': user.username,
-        'email': user.email,
-        'firstName': user.first_name,
-        'lastName': user.last_name,
-    }
-    return Response(data)
+    serializer = UserSerializer(user)
+    
+    return Response(serializer.data)
+
