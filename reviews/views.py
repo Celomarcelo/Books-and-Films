@@ -48,7 +48,7 @@ class RegisterView(generics.CreateAPIView):
 @authentication_classes([JWTAuthentication])
 def user_profile(request):
     user = request.user
-    serializer = UserSerializer(user)
+    serializer = UserSerializer(user, context={'request': request})
     
     return Response(serializer.data)
 
