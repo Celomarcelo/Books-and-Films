@@ -28,13 +28,22 @@ class RegisterView(generics.CreateAPIView):
 
         if not username or not password:
             return Response({"error": "Username and password are required"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+        if not email:
+            return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+
         if User.objects.filter(username=username).exists():
             return Response({"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
 
-        user = User(username=username, email=email)
-        user.set_password(password)
-        user.save()
+        if User.objects.filter(email=email).exists():
+            return Response({"error": "Email already exists"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User(username=username, email=email)
+            user.set_password(password)
+            user.save()
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         refresh = RefreshToken.for_user(user)
 
@@ -42,13 +51,13 @@ class RegisterView(generics.CreateAPIView):
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         })
-        
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
 def user_profile(request):
     user = request.user
     serializer = UserSerializer(user, context={'request': request})
-    
-    return Response(serializer.data)
 
+    return Response(serializer.data)
