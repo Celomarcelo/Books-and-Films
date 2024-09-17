@@ -53,11 +53,19 @@ class RegisterView(generics.CreateAPIView):
         })
 
 
-@api_view(['GET'])
+@api_view(['GET', 'PUT'])
 @permission_classes([IsAuthenticated])
 @authentication_classes([JWTAuthentication])
 def user_profile(request):
     user = request.user
-    serializer = UserSerializer(user, context={'request': request})
-
-    return Response(serializer.data)
+    
+    if request.method == 'GET':
+        serializer = UserSerializer(user, context={'request': request})
+        return Response(serializer.data)
+    
+    elif request.method == 'PUT':
+        serializer = UserSerializer(user, data=request.data, context={'request': request}, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
