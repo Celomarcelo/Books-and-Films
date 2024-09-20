@@ -16,12 +16,12 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    profile_image = ProfileSerializer()
+    profile_image = serializers.ImageField(source='profile.image')
 
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name',
-                  'last_name', 'profile']
+                  'last_name', 'profile_image']
 
     def update(self, instance, validated_data):
         profile_data = validated_data.pop('profile', None)
