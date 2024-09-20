@@ -21,7 +21,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name',
-                  'last_name', 'profile_image']
+                  'last_name', 'profile']
 
     def update(self, instance, validated_data):
         profile_data = validated_data.pop('profile', None)
@@ -33,7 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
 
         if profile_data:
-            profile = instance.profile
+            profile, created = Profile.objects.get_or_create(user=instance)
             profile.image = profile_data.get('image', profile.image)
             profile.save()
 
