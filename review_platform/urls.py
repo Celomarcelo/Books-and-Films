@@ -20,7 +20,7 @@ from reviews.views import ReviewViewSet
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from reviews.views import RegisterView, user_profile
+from reviews.views import RegisterView, user_profile, ChangePasswordView
 
 
 router = DefaultRouter()
@@ -32,5 +32,6 @@ urlpatterns = [
     path('api/register/', RegisterView.as_view(), name='register'),
     path('api/login/', TokenObtainPairView.as_view(), name='login'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('api/user/profile/', user_profile, name='user-profile')
+    path('api/user/profile/', user_profile, name='user-profile'),
+    path('user/change-password/', ChangePasswordView.as_view(), name='change-password'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
