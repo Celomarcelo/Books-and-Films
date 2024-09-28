@@ -10,6 +10,8 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.views import APIView
+from django.contrib.auth import authenticate
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -58,14 +60,33 @@ class RegisterView(generics.CreateAPIView):
 @authentication_classes([JWTAuthentication])
 def user_profile(request):
     user = request.user
-    
+
     if request.method == 'GET':
         serializer = UserSerializer(user, context={'request': request})
         return Response(serializer.data)
-    
+
     elif request.method == 'PUT':
-        serializer = UserSerializer(user, data=request.data, context={'request': request}, partial=True)
+        serializer = UserSerializer(user, data=request.data, context={
+                                    'request': request}, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        current_password = request.data.get('current_password')
+        new_password = request.data.get('new_password')
+
+        user = request.user
+
+        if not user.check_password(current_password):
+            return Response({"error": "Current password is incorrect"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save()
+
+        return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
