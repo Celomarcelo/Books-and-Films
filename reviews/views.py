@@ -18,6 +18,7 @@ from django.http import JsonResponse
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class RegisterView(generics.CreateAPIView):
@@ -91,18 +92,18 @@ class ChangePasswordView(APIView):
         user.save()
 
         return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
-    
-    
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_review(request):
     if request.method == 'POST':
         user = request.user
         data = request.data
-        
+
         serializer = ReviewSerializer(data=data)
-        
+
         if serializer.is_valid():
-            serializer.save(user=user) 
+            serializer.save(user=user)
             return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
