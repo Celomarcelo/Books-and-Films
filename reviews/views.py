@@ -106,4 +106,13 @@ def create_review(request):
         if serializer.is_valid():
             serializer.save(user=user)
             return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
-        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)\
+            
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_reviews(request):
+    user = request.user
+    reviews = Review.objects.filter(user=user) 
+    serializer = ReviewSerializer(reviews, many=True)
+    return Response(serializer.data)
