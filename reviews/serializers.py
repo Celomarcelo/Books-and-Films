@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields = ['title', 'author_director', 'genre', 'rating', 'content', 'img']
+        fields = ['id','title', 'author_director', 'genre', 'rating', 'content', 'img']
 
 
 class ProfileSerializer(serializers.ModelSerializer):
