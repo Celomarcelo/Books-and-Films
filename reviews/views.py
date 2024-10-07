@@ -13,6 +13,7 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from django.http import JsonResponse
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 class ReviewViewSet(viewsets.ModelViewSet):
@@ -116,3 +117,21 @@ def user_reviews(request):
     reviews = Review.objects.filter(user=user) 
     serializer = ReviewSerializer(reviews, many=True)
     return Response(serializer.data)
+
+@api_view(['GET','PUT'])
+@permission_classes([IsAuthenticated])
+def edit_review(request, reviewId):
+    parser_classes = [MultiPartParser, FormParser]
+    try:
+        
+        review = Review.objects.get(id=reviewId, user=request.user)
+    except Review.DoesNotExist:
+        return JsonResponse({'error': 'Review not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = ReviewSerializer(review, data=request.data, partial=True)
+
+    if serializer.is_valid():
+        serializer.save()
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
+    return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
