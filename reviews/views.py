@@ -135,3 +135,14 @@ def edit_review(request, reviewId):
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
     return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_review(request, reviewId):
+    try:
+        review = Review.objects.get(id=reviewId, user=request.user)
+    except Review.DoesNotExist:
+        return JsonResponse({'error': 'Review not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    review.delete()
+    return JsonResponse({'message': 'Review deleted successfully.'}, status=status.HTTP_200_OK)
