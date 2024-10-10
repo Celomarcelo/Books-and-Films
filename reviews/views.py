@@ -146,3 +146,11 @@ def delete_review(request, reviewId):
 
     review.delete()
     return JsonResponse({'message': 'Review deleted successfully.'}, status=status.HTTP_200_OK)
+
+@permission_classes([IsAuthenticated])
+class UserReviewsView(generics.ListAPIView):
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        user_id = self.kwargs['user_id']
+        return Review.objects.filter(user__id=user_id)
