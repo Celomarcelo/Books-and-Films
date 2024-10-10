@@ -3,22 +3,10 @@ from .models import Review, Profile
 from django.contrib.auth.models import User
 
 
-class ReviewSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Review
-        fields = ['id','title', 'author_director', 'genre', 'rating', 'content', 'img', 'created_at']
-
-
-class ProfileSerializer(serializers.ModelSerializer):
-    biography = serializers.CharField(required=False)
-    class Meta:
-        model = Profile
-        fields = ['image', 'biography']
-
-
 class UserSerializer(serializers.ModelSerializer):
     profile_image = serializers.ImageField(source='profile.image')
-    biography = serializers.CharField(source='profile.biography', allow_blank=True, required=False)
+    biography = serializers.CharField(
+        source='profile.biography', allow_blank=True, required=False)
 
     class Meta:
         model = User
@@ -37,7 +25,26 @@ class UserSerializer(serializers.ModelSerializer):
         if profile_data:
             profile, created = Profile.objects.get_or_create(user=instance)
             profile.image = profile_data.get('image', profile.image)
-            profile.biography = profile_data.get('biography', profile.biography)
+            profile.biography = profile_data.get(
+                'biography', profile.biography)
             profile.save()
 
         return instance
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Review
+        fields = ['id', 'title', 'author_director', 'genre',
+                  'rating', 'content', 'img', 'created_at', 'user']
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    biography = serializers.CharField(required=False)
+
+    class Meta:
+        model = Profile
+        fields = ['image', 'biography']
