@@ -50,3 +50,11 @@ class ProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Profile
         fields = ['profile_image', 'biography']
+
+
+class UserFavoriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'profile']
+        
+        
