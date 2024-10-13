@@ -1,8 +1,7 @@
 from django.shortcuts import render, get_object_or_404
-from rest_framework import viewsets
+from rest_framework import viewsets, generics, status
 from .models import Review
 from .serializers import ReviewSerializer, UserSerializer
-from rest_framework import generics, status
 from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -108,22 +107,24 @@ def create_review(request):
             serializer.save(user=user)
             return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)\
-            
+
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_reviews(request):
     user = request.user
-    reviews = Review.objects.filter(user=user) 
+    reviews = Review.objects.filter(user=user)
     serializer = ReviewSerializer(reviews, many=True)
     return Response(serializer.data)
 
-@api_view(['GET','PUT'])
+
+@api_view(['GET', 'PUT'])
 @permission_classes([IsAuthenticated])
 def edit_review(request, reviewId):
     parser_classes = [MultiPartParser, FormParser]
     try:
-        
+
         review = Review.objects.get(id=reviewId, user=request.user)
     except Review.DoesNotExist:
         return JsonResponse({'error': 'Review not found.'}, status=status.HTTP_404_NOT_FOUND)
@@ -136,6 +137,7 @@ def edit_review(request, reviewId):
 
     return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_review(request, reviewId):
@@ -147,6 +149,7 @@ def delete_review(request, reviewId):
     review.delete()
     return JsonResponse({'message': 'Review deleted successfully.'}, status=status.HTTP_200_OK)
 
+
 @permission_classes([IsAuthenticated])
 class UserReviewsView(generics.ListAPIView):
     serializer_class = ReviewSerializer
@@ -154,3 +157,21 @@ class UserReviewsView(generics.ListAPIView):
     def get_queryset(self):
         user_id = self.kwargs['user_id']
         return Review.objects.filter(user__id=user_id)
+
+
+class UserDetailView(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user_id = self.kwargs.get('user_id')
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found.'}, status=404)
+
+        serializer = self.get_serializer(user)
+        return Response(serializer.data)
+    
+

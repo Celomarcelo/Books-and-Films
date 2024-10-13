@@ -4,14 +4,14 @@ from django.contrib.auth.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
-    profile_image = serializers.ImageField(source='profile.image')
+    profile_image = serializers.ImageField(source='profile.image', allow_null=True, required=False)
     biography = serializers.CharField(
         source='profile.biography', allow_blank=True, required=False)
 
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name',
-                  'last_name', 'profile_image', 'biography']
+                  'last_name', 'profile_image', 'biography', 'id']
 
     def update(self, instance, validated_data):
         profile_data = validated_data.pop('profile', None)
@@ -39,12 +39,14 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
         fields = ['id', 'title', 'author_director', 'genre',
-                  'rating', 'content', 'img', 'created_at', 'user']
+                  'rating', 'content', 'img', 'created_at', 'user' ]
+        
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    profile_image = serializers.ImageField(source='profile.image', allow_null=True, required=False)
     biography = serializers.CharField(required=False)
 
     class Meta:
         model = Profile
-        fields = ['image', 'biography']
+        fields = ['profile_image', 'biography']
