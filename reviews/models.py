@@ -19,6 +19,7 @@ class Review(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    favorites = models.ManyToManyField(User, related_name='favorited_by', blank=True)
     image = models.ImageField(
         upload_to='profile_images/', default='default.jpg')
     biography = models.TextField(blank=True, null=True)

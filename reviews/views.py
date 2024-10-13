@@ -173,5 +173,20 @@ class UserDetailView(generics.RetrieveAPIView):
 
         serializer = self.get_serializer(user)
         return Response(serializer.data)
-    
 
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def toggle_favorite(request, user_id):
+    user = request.user
+    try:
+        favorite_user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return Response({'error': 'User not found.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if favorite_user in user.profile.favorites.all():
+        user.profile.favorites.remove(favorite_user)
+        return Response({'message': f'{favorite_user.username} removed from favorites.'})
+    else:
+        user.profile.favorites.add(favorite_user)
+        return Response({'message': f'{favorite_user.username} added to favorites.'})
