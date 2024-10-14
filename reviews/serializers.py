@@ -53,8 +53,9 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class UserFavoriteSerializer(serializers.ModelSerializer):
+    profile_image = serializers.ImageField(source='profile.image', allow_null=True)
     class Meta:
         model = User
-        fields = ['id', 'username', 'profile']
+        fields = ['id', 'username', 'profile', 'profile_image']
         
         

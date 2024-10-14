@@ -20,7 +20,7 @@ from reviews.views import ReviewViewSet
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from reviews.views import RegisterView, user_profile, ChangePasswordView, create_review, user_reviews, edit_review, delete_review, UserReviewsView, UserDetailView, toggle_favorite, list_favorites
+from reviews.views import CustomTokenObtainPairView, RegisterView, user_profile, ChangePasswordView, create_review, user_reviews, edit_review, delete_review, UserReviewsView, UserDetailView, toggle_favorite, list_favorites
 
 
 router = DefaultRouter()
@@ -30,7 +30,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router.urls)),
     path('api/register/', RegisterView.as_view(), name='register'),
-    path('api/login/', TokenObtainPairView.as_view(), name='login'),
+    path('api/login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/user/profile/', user_profile, name='user-profile'),
     path('user/change-password/',
