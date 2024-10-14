@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from rest_framework import viewsets, generics, status
 from .models import Review
-from .serializers import ReviewSerializer, UserSerializer
+from .serializers import ReviewSerializer, UserSerializer, UserFavoriteSerializer
 from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -190,3 +190,11 @@ def toggle_favorite(request, user_id):
     else:
         user.profile.favorites.add(favorite_user)
         return Response({'message': f'{favorite_user.username} added to favorites.'})
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_favorites(request):
+    user = request.user
+    favorites = user.profile.favorites.all()
+    serializer = UserFavoriteSerializer(favorites, many=True)
+    return Response(serializer.data)
