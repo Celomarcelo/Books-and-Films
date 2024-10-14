@@ -42,4 +42,5 @@ urlpatterns = [
     path('user/<int:user_id>/reviews/', UserReviewsView.as_view(), name='user-reviews'),
     path('user/<int:user_id>/', UserDetailView.as_view(), name='user-detail'),
     path('user/<int:user_id>/toggle-favorite/', toggle_favorite, name='toggle_favorite'),
+    path('user/favorites/', list_favorites, name='user-favorites'), 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
