@@ -217,11 +217,23 @@ def toggle_favorite(request, user_id):
     else:
         user.profile.favorites.add(favorite_user)
         return Response({'message': f'{favorite_user.username} added to favorites.'})
-    
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_favorites(request):
     user = request.user
     favorites = user.profile.favorites.all()
     serializer = UserFavoriteSerializer(favorites, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def review_detail(request, review_id):
+    try:
+        review = Review.objects.get(id=review_id)
+    except Review.DoesNotExist:
+        return Response({'error': 'Review not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = ReviewSerializer(review)
     return Response(serializer.data)
