@@ -22,7 +22,7 @@ class Genre(models.Model):
 class Review(models.Model):
     title = models.CharField(max_length=255)
     author_director = models.CharField(max_length=255)
-    genre = models.CharField(max_length=100)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
     rating = models.IntegerField()
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
