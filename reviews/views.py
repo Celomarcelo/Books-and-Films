@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from rest_framework import viewsets, generics, status
-from .models import Review
-from .serializers import ReviewSerializer, UserSerializer, UserFavoriteSerializer
+from .models import Review, Category, Genre
+from .serializers import ReviewSerializer, UserSerializer, UserFavoriteSerializer, CategorySerializer, GenreSerializer
 from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
@@ -125,15 +125,13 @@ class ChangePasswordView(APIView):
 @permission_classes([IsAuthenticated])
 def create_review(request):
     if request.method == 'POST':
-        user = request.user
-        data = request.data
-
-        serializer = ReviewSerializer(data=data)
+        serializer = ReviewSerializer(data=request.data, context={'request': request})
 
         if serializer.is_valid():
-            serializer.save(user=user)
-            return JsonResponse(serializer.data, status=status.HTTP_201_CREATED)
-        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)\
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -236,4 +234,27 @@ def review_detail(request, review_id):
         return Response({'error': 'Review not found'}, status=status.HTTP_404_NOT_FOUND)
 
     serializer = ReviewSerializer(review)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def list_categories(request):
+    categories = Category.objects.all()
+    serializer = CategorySerializer(categories, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def list_genres(request):
+    genres = Genre.objects.all()
+    serializer = GenreSerializer(genres, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def category_genres(request, id):
+    try:
+        category = Category.objects.get(pk=id)
+    except Category.DoesNotExist:
+        return Response({"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    genres = Genre.objects.filter(category=category)
+    serializer = GenreSerializer(genres, many=True)
     return Response(serializer.data)
