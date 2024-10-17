@@ -1,10 +1,11 @@
 from rest_framework import serializers
-from .models import Review, Profile
+from .models import Review, Profile, Genre, Category
 from django.contrib.auth.models import User
 
 
 class UserSerializer(serializers.ModelSerializer):
-    profile_image = serializers.ImageField(source='profile.image', allow_null=True, required=False)
+    profile_image = serializers.ImageField(
+        source='profile.image', allow_null=True, required=False)
     biography = serializers.CharField(
         source='profile.biography', allow_blank=True, required=False)
 
@@ -32,19 +33,38 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
+class GenreSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Genre
+        fields = ['id', 'name',]
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    genres = GenreSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'genres']
+
+
 class ReviewSerializer(serializers.ModelSerializer):
-
-    user = UserSerializer(read_only=True)
-
+    genre = GenreSerializer()
     class Meta:
         model = Review
         fields = ['id', 'title', 'author_director', 'genre',
-                  'rating', 'content', 'img', 'created_at', 'user' ]
-        
+                  'rating', 'content', 'img', 'created_at' ]
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        validated_data.pop('user', None)
+        review = Review.objects.create(user=user, **validated_data)
+        return review
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    profile_image = serializers.ImageField(source='profile.image', allow_null=True, required=False)
+    profile_image = serializers.ImageField(
+        source='profile.image', allow_null=True, required=False)
     biography = serializers.CharField(required=False)
 
     class Meta:
@@ -53,9 +73,9 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class UserFavoriteSerializer(serializers.ModelSerializer):
-    profile_image = serializers.ImageField(source='profile.image', allow_null=True)
+    profile_image = serializers.ImageField(
+        source='profile.image', allow_null=True)
+
     class Meta:
         model = User
         fields = ['id', 'username', 'profile', 'profile_image']
-        
-        
