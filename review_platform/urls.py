@@ -20,7 +20,24 @@ from reviews.views import ReviewViewSet
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from reviews.views import CustomTokenObtainPairView, RegisterView, user_profile, ChangePasswordView, create_review, user_reviews, edit_review, delete_review, UserReviewsView, UserDetailView, toggle_favorite, list_favorites, review_detail
+from reviews.views import (
+    CustomTokenObtainPairView, 
+    RegisterView, 
+    user_profile, 
+    ChangePasswordView, 
+    create_review, 
+    user_reviews, 
+    edit_review, 
+    delete_review, 
+    UserReviewsView, 
+    UserDetailView, 
+    toggle_favorite, 
+    list_favorites, 
+    review_detail,
+    list_categories,
+    list_genres,
+    category_genres
+)
 
 
 router = DefaultRouter()
@@ -44,4 +61,7 @@ urlpatterns = [
     path('user/<int:user_id>/toggle-favorite/', toggle_favorite, name='toggle_favorite'),
     path('user/favorites/', list_favorites, name='user-favorites'),
     path('reviews-details/<int:review_id>/', review_detail, name='review_detail'),
+    path('categories/', list_categories, name='list_categories'),
+    path('genres/', list_genres, name='list_genres'),
+    path('categories/<int:id>/genres/', category_genres, name='category-genres'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
