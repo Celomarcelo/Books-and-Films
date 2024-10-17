@@ -43,5 +43,5 @@ urlpatterns = [
     path('user/<int:user_id>/', UserDetailView.as_view(), name='user-detail'),
     path('user/<int:user_id>/toggle-favorite/', toggle_favorite, name='toggle_favorite'),
     path('user/favorites/', list_favorites, name='user-favorites'),
-    path('api/reviews-details/<int:review_id>/', review_detail, name='review_detail'),
+    path('reviews-details/<int:review_id>/', review_detail, name='review_detail'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
