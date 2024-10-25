@@ -36,7 +36,8 @@ from reviews.views import (
     review_detail,
     list_categories,
     list_genres,
-    category_genres
+    category_genres,
+    filtered_reviews
 )
 
 
@@ -64,4 +65,5 @@ urlpatterns = [
     path('categories/', list_categories, name='list_categories'),
     path('genres/', list_genres, name='list_genres'),
     path('categories/<int:id>/genres/', category_genres, name='category-genres'),
+    path('reviews/', filtered_reviews, name='filtered-reviews'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

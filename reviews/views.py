@@ -124,15 +124,18 @@ class ChangePasswordView(APIView):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_review(request):
+    print(request.data)
     if request.method == 'POST':
-        serializer = ReviewSerializer(data=request.data, context={'request': request})
+        serializer = ReviewSerializer(
+            data=request.data, context={'request': request})
 
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
+        
+        print(serializer.errors)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 @api_view(['GET'])
@@ -236,11 +239,13 @@ def review_detail(request, review_id):
     serializer = ReviewSerializer(review)
     return Response(serializer.data)
 
+
 @api_view(['GET'])
 def list_categories(request):
     categories = Category.objects.all()
     serializer = CategorySerializer(categories, many=True)
     return Response(serializer.data)
+
 
 @api_view(['GET'])
 def list_genres(request):
@@ -248,13 +253,30 @@ def list_genres(request):
     serializer = GenreSerializer(genres, many=True)
     return Response(serializer.data)
 
+
 @api_view(['GET'])
 def category_genres(request, id):
     try:
         category = Category.objects.get(pk=id)
     except Category.DoesNotExist:
         return Response({"error": "Category not found"}, status=status.HTTP_404_NOT_FOUND)
-    
+
     genres = Genre.objects.filter(category=category)
     serializer = GenreSerializer(genres, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def filtered_reviews(request):
+    category_id = request.query_params.get('category', None)
+    genre_id = request.query_params.get('genre', None)
+
+    reviews = Review.objects.all()
+
+    if category_id:
+        reviews = reviews.filter(genre__category_id=category_id)
+    if genre_id:
+        reviews = reviews.filter(genre_id=genre_id)
+
+    serializer = ReviewSerializer(reviews, many=True)
     return Response(serializer.data)
