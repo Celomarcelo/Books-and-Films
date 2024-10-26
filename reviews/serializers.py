@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Review, Profile, Genre, Category
+from .models import Review, Profile, Genre, Category, Like, Comment
 from django.contrib.auth.models import User
 
 
@@ -84,3 +84,15 @@ class UserFavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'profile', 'profile_image']
+
+class LikeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Like
+        fields = ['id', 'user', 'review', 'created_at']
+
+class CommentSerializer(serializers.ModelSerializer):
+    user_name = serializers.ReadOnlyField(source='user.username')
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'user', 'user_name', 'review', 'text', 'created_at']
