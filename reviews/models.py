@@ -44,4 +44,19 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
     
+    
+class Like(models.Model):
+    review = models.ForeignKey(Review, related_name='likes', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('review', 'user')
+
+class Comment(models.Model):
+    review = models.ForeignKey(Review, related_name='comments', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    text = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
 
