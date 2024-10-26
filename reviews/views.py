@@ -1,4 +1,5 @@
 from django.shortcuts import render, get_object_or_404
+from django.db.models import Q
 from rest_framework import viewsets, generics, status
 from .models import Review, Category, Genre
 from .serializers import ReviewSerializer, UserSerializer, UserFavoriteSerializer, CategorySerializer, GenreSerializer
@@ -280,3 +281,20 @@ def filtered_reviews(request):
 
     serializer = ReviewSerializer(reviews, many=True)
     return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def search_reviews(request):
+    query = request.query_params.get('q', None)
+    if not query:
+        return Response({"error": "Search query is required"}, status=400)
+    
+    reviews = Review.objects.filter(
+        Q(title__icontains=query) |
+        Q(author_director__icontains=query) |
+        Q(content__icontains=query)
+    )
+
+    serializer = ReviewSerializer(reviews, many=True)
+    return Response(serializer.data, status=200)

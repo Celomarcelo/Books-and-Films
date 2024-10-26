@@ -49,12 +49,13 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
     genre = serializers.PrimaryKeyRelatedField(queryset=Genre.objects.all())
     genre_name = serializers.SerializerMethodField()
     class Meta:
         model = Review
         fields = ['id', 'title', 'author_director', 'genre', 'genre_name',
-                  'rating', 'content', 'img', 'created_at' ]
+                  'rating', 'content', 'img', 'created_at', 'user' ]
 
     def get_genre_name(self, obj):
         return obj.genre.name
