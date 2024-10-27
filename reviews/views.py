@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from rest_framework import viewsets, generics, status
-from .models import Review, Category, Genre
+from .models import Review, Category, Genre, Like
 from .serializers import ReviewSerializer, UserSerializer, UserFavoriteSerializer, CategorySerializer, GenreSerializer
 from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -298,3 +298,13 @@ def search_reviews(request):
 
     serializer = ReviewSerializer(reviews, many=True)
     return Response(serializer.data, status=200)
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def like_review(request, review_id):
+    review = Review.objects.get(id=review_id)
+    like, created = Like.objects.get_or_create(review=review, user=request.user)
+    if not created:
+        like.delete()
+        return Response({'message': 'Like removed'}, status=status.HTTP_204_NO_CONTENT)
+    return Response({'message': 'Review liked'}, status=status.HTTP_201_CREATED)
