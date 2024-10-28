@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from rest_framework import viewsets, generics, status
-from .models import Review, Category, Genre, Like
+from .models import Review, Category, Genre, Like, Comment
 from .serializers import ReviewSerializer, UserSerializer, UserFavoriteSerializer, CategorySerializer, GenreSerializer, LikeSerializer, CommentSerializer
 from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -313,12 +313,18 @@ def like_review(request, review_id):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_comment(request, review_id):
-    review = Review.objects.get(id=review_id)
-    serializer = CommentSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save(user=request.user, review=review)
+    content = request.data.get('content')
+    
+    if not content:
+        return Response({"error": "Content field is required."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        review = Review.objects.get(id=review_id)
+        comment = Comment.objects.create(user=request.user, review=review, content=content)
+        serializer = CommentSerializer(comment)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    except Review.DoesNotExist:
+        return Response({"error": "Review not found."}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
 def list_comments(request, review_id):

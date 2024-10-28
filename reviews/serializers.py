@@ -47,26 +47,6 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = ['id', 'name', 'genres']
 
-
-class ReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-    genre = serializers.PrimaryKeyRelatedField(queryset=Genre.objects.all())
-    genre_name = serializers.SerializerMethodField()
-    class Meta:
-        model = Review
-        fields = ['id', 'title', 'author_director', 'genre', 'genre_name',
-                  'rating', 'content', 'img', 'created_at', 'user' ]
-
-    def get_genre_name(self, obj):
-        return obj.genre.name
-    
-    def create(self, validated_data):
-        user = self.context['request'].user
-        validated_data.pop('user', None)
-        review = Review.objects.create(user=user, **validated_data)
-        return review
-
-
 class ProfileSerializer(serializers.ModelSerializer):
     profile_image = serializers.ImageField(
         source='profile.image', allow_null=True, required=False)
@@ -95,4 +75,25 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['id', 'user', 'user_name', 'review', 'text', 'created_at']
+        fields = ['id', 'user', 'user_name', 'review', 'content', 'created_at']
+
+class ReviewSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+    genre = serializers.PrimaryKeyRelatedField(queryset=Genre.objects.all())
+    genre_name = serializers.SerializerMethodField()
+    comments = CommentSerializer(many=True, read_only=True)
+    class Meta:
+        model = Review
+        fields = ['id', 'title', 'author_director', 'genre', 'genre_name',
+                  'rating', 'content', 'img', 'created_at', 'user', 'comments' ]
+
+    def get_genre_name(self, obj):
+        return obj.genre.name
+    
+    def create(self, validated_data):
+        user = self.context['request'].user
+        validated_data.pop('user', None)
+        review = Review.objects.create(user=user, **validated_data)
+        return review
+
+
