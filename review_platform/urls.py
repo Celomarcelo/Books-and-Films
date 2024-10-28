@@ -41,7 +41,8 @@ from reviews.views import (
     search_reviews,
     like_review,
     list_comments,
-    add_comment
+    add_comment,
+    delete_comment
 )
 
 
@@ -74,4 +75,5 @@ urlpatterns = [
     path('reviews/<int:review_id>/like/', like_review, name='like_review'),
     path('reviews/<int:review_id>/comments/', add_comment, name='add_comment'),
     path('reviews/<int:review_id>/comments/list/', list_comments, name='list_comments'),
+    path('comments/<int:comment_id>/delete/', delete_comment, name='delete_comment'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

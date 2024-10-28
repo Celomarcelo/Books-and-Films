@@ -72,10 +72,11 @@ class LikeSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     user_name = serializers.ReadOnlyField(source='user.username')
+    user_id = serializers.ReadOnlyField(source='user.id')
 
     class Meta:
         model = Comment
-        fields = ['id', 'user', 'user_name', 'review', 'content', 'created_at']
+        fields = ['id', 'user_id', 'user_name', 'review', 'content', 'created_at']
 
 class ReviewSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
