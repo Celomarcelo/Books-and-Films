@@ -20,6 +20,7 @@ from reviews.views import ReviewViewSet
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from django.contrib.auth import views as auth_views
 from reviews.views import (
     CustomTokenObtainPairView, 
     RegisterView, 
@@ -76,4 +77,8 @@ urlpatterns = [
     path('reviews/<int:review_id>/comments/', add_comment, name='add_comment'),
     path('reviews/<int:review_id>/comments/list/', list_comments, name='list_comments'),
     path('comments/<int:comment_id>/delete/', delete_comment, name='delete_comment'),
+    path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
