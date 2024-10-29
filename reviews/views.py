@@ -133,7 +133,7 @@ def create_review(request):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        
+
         print(serializer.errors)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -289,7 +289,7 @@ def search_reviews(request):
     query = request.query_params.get('q', None)
     if not query:
         return Response({"error": "Search query is required"}, status=400)
-    
+
     reviews = Review.objects.filter(
         Q(title__icontains=query) |
         Q(author_director__icontains=query) |
@@ -299,32 +299,42 @@ def search_reviews(request):
     serializer = ReviewSerializer(reviews, many=True)
     return Response(serializer.data, status=200)
 
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def like_review(request, review_id):
     review = Review.objects.get(id=review_id)
-    like, created = Like.objects.get_or_create(review=review, user=request.user)
+    like, created = Like.objects.get_or_create(
+        review=review, user=request.user)
     if not created:
         like.delete()
-        return Response({'message': 'Like removed'}, status=status.HTTP_204_NO_CONTENT)
-    return Response({'message': 'Review liked'}, status=status.HTTP_201_CREATED)
+        return Response({
+            'message': 'Like removed',
+            'likes': review.likes.count()
+        }, status=status.HTTP_200_OK)
+    return Response({
+        'message': 'Review liked',
+        'likes': review.likes.count()
+    }, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def add_comment(request, review_id):
     content = request.data.get('content')
-    
+
     if not content:
         return Response({"error": "Content field is required."}, status=status.HTTP_400_BAD_REQUEST)
-    
+
     try:
         review = Review.objects.get(id=review_id)
-        comment = Comment.objects.create(user=request.user, review=review, content=content)
+        comment = Comment.objects.create(
+            user=request.user, review=review, content=content)
         serializer = CommentSerializer(comment)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     except Review.DoesNotExist:
         return Response({"error": "Review not found."}, status=status.HTTP_404_NOT_FOUND)
+
 
 @api_view(['GET'])
 def list_comments(request, review_id):
@@ -332,6 +342,7 @@ def list_comments(request, review_id):
     comments = review.comments.all()
     serializer = CommentSerializer(comments, many=True)
     return Response(serializer.data)
+
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
