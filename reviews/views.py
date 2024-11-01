@@ -23,15 +23,23 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
-        token['username'] = user.username  # Adds username to token payload
-        token['id'] = user.id  # Adds user ID to token payload
+
+        token['username'] = user.username
+        token['id'] = user.id
+
         return token
 
     def validate(self, attrs):
         data = super().validate(attrs)
+
         # Adds user info to the token response
-        data['user'] = {'id': self.user.id, 'username': self.user.username}
+        data['user'] = {
+            'id': self.user.id,
+            'username': self.user.username,
+        }
+
         return data
+
 
 # Custom JWT token view using the CustomTokenObtainPairSerializer
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -58,12 +66,14 @@ class RegisterView(generics.CreateAPIView):
         # Validates required fields
         if not username or not password:
             return Response({"error": "Username and password are required"}, status=status.HTTP_400_BAD_REQUEST)
+
         if not email:
             return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         # Checks for unique username and email
         if User.objects.filter(username=username).exists():
             return Response({"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
+
         if User.objects.filter(email=email).exists():
             return Response({"error": "Email already exists"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -76,7 +86,11 @@ class RegisterView(generics.CreateAPIView):
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         refresh = RefreshToken.for_user(user)
-        return Response({'refresh': str(refresh), 'access': str(refresh.access_token)})
+
+        return Response({
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+        })
 
 
 # View to retrieve or update user profile
@@ -86,10 +100,11 @@ class RegisterView(generics.CreateAPIView):
 def user_profile(request):
     user = request.user
 
-    if request.method == 'GET':  # Retrieves user profile details
+    if request.method == 'GET':
         serializer = UserSerializer(user, context={'request': request})
         return Response(serializer.data)
-    elif request.method == 'PUT':  # Updates user profile
+
+    elif request.method == 'PUT':
         serializer = UserSerializer(user, data=request.data, context={
                                     'request': request}, partial=True)
         if serializer.is_valid():
@@ -105,6 +120,7 @@ class ChangePasswordView(APIView):
     def post(self, request, *args, **kwargs):
         current_password = request.data.get('current_password')
         new_password = request.data.get('new_password')
+
         user = request.user
 
         # Checks if the current password is correct
@@ -113,6 +129,7 @@ class ChangePasswordView(APIView):
 
         user.set_password(new_password)
         user.save()
+
         return Response({"message": "Password changed successfully"}, status=status.HTTP_200_OK)
 
 
@@ -120,19 +137,25 @@ class ChangePasswordView(APIView):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def create_review(request):
-    serializer = ReviewSerializer(
-        data=request.data, context={'request': request})
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'POST':
+        serializer = ReviewSerializer(
+            data=request.data, context={'request': request})
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+        print(serializer.errors)
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # API view to retrieve the reviews created by the authenticated user
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def user_reviews(request):
-    reviews = Review.objects.filter(user=request.user)
+    user = request.user
+    reviews = Review.objects.filter(user=user)
     serializer = ReviewSerializer(reviews, many=True)
     return Response(serializer.data)
 
@@ -143,14 +166,17 @@ def user_reviews(request):
 def edit_review(request, reviewId):
     parser_classes = [MultiPartParser, FormParser]
     try:
+
         review = Review.objects.get(id=reviewId, user=request.user)
     except Review.DoesNotExist:
         return JsonResponse({'error': 'Review not found.'}, status=status.HTTP_404_NOT_FOUND)
 
     serializer = ReviewSerializer(review, data=request.data, partial=True)
+
     if serializer.is_valid():
         serializer.save()
         return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
     return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -165,6 +191,33 @@ def delete_review(request, reviewId):
 
     review.delete()
     return JsonResponse({'message': 'Review deleted successfully.'}, status=status.HTTP_200_OK)
+
+
+# API view to retrieve a list of reviews created by a specific user
+@permission_classes([IsAuthenticated])
+class UserReviewsView(generics.ListAPIView):
+    serializer_class = ReviewSerializer
+
+    def get_queryset(self):
+        user_id = self.kwargs['user_id']
+        return Review.objects.filter(user__id=user_id)
+
+
+# API view to retrieve detailed information about a specific user by their ID
+class UserDetailView(generics.RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user_id = self.kwargs.get('user_id')
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found.'}, status=404)
+
+        serializer = self.get_serializer(user)
+        return Response(serializer.data)
 
 
 # API view to toggle favorite status for a specific user
@@ -189,7 +242,8 @@ def toggle_favorite(request, user_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_favorites(request):
-    favorites = request.user.profile.favorites.all()
+    user = request.user
+    favorites = user.profile.favorites.all()
     serializer = UserFavoriteSerializer(favorites, many=True)
     return Response(serializer.data)
 
@@ -214,7 +268,7 @@ def list_categories(request):
     return Response(serializer.data)
 
 
-# API view to list all genres
+# API view to retrieve genres within a specific category
 @api_view(['GET'])
 def list_genres(request):
     genres = Genre.objects.all()
@@ -222,7 +276,7 @@ def list_genres(request):
     return Response(serializer.data)
 
 
-# API view to retrieve genres within a specific category
+# API view to filter reviews by category or genre
 @api_view(['GET'])
 def category_genres(request, id):
     try:
@@ -235,13 +289,14 @@ def category_genres(request, id):
     return Response(serializer.data)
 
 
-# API view to filter reviews by category or genre
+# API view to search for reviews by title, author, or content
 @api_view(['GET'])
 def filtered_reviews(request):
     category_id = request.query_params.get('category', None)
     genre_id = request.query_params.get('genre', None)
 
     reviews = Review.objects.all()
+
     if category_id:
         reviews = reviews.filter(genre__category_id=category_id)
     if genre_id:
@@ -277,7 +332,7 @@ def like_review(request, review_id):
     like, created = Like.objects.get_or_create(
         review=review, user=request.user)
     if not created:
-        like.delete()  # If already liked, remove the like
+        like.delete()
         return Response({
             'message': 'Like removed',
             'likes': review.likes.count()
@@ -293,6 +348,7 @@ def like_review(request, review_id):
 @permission_classes([IsAuthenticated])
 def add_comment(request, review_id):
     content = request.data.get('content')
+
     if not content:
         return Response({"error": "Content field is required."}, status=status.HTTP_400_BAD_REQUEST)
 
