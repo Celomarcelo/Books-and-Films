@@ -48,7 +48,7 @@ class CustomTokenObtainPairView(TokenObtainPairView):
 
 # ViewSet for managing Review objects in the API
 class ReviewViewSet(viewsets.ModelViewSet):
-    queryset = Review.objects.all()
+    queryset = Review.objects.select_related('genre__category').all()
     serializer_class = ReviewSerializer
     permission_classes = [IsAuthenticated]
 

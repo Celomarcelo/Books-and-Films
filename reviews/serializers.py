@@ -82,15 +82,20 @@ class ReviewSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)  # Nested serializer for User, read-only
     genre = serializers.PrimaryKeyRelatedField(queryset=Genre.objects.all())  # Genre relation by primary key
     genre_name = serializers.SerializerMethodField()  # Retrieves genre name
+    category_id = serializers.SerializerMethodField()
     comments = CommentSerializer(many=True, read_only=True)  # Nested comments, read-only
     likes = serializers.IntegerField(source='likes_count', read_only=True)  # Count of likes
 
     class Meta:
         model = Review
-        fields = ['id', 'title', 'author_director', 'genre', 'genre_name', 'rating', 'content', 'img', 'created_at', 'user', 'comments', 'likes']  # Fields included
+        fields = ['id', 'title', 'author_director', 'genre', 'genre_name',
+                  'rating', 'content', 'img', 'created_at', 'user', 'comments', 'likes', 'category_id']  # Fields included
 
     def get_genre_name(self, obj):
         return obj.genre.name  # Retrieves the genre name for the review
+    
+    def get_category_id(self, obj):
+        return obj.genre.category.id if obj.genre and obj.genre.category else None
 
     def create(self, validated_data):
         user = self.context['request'].user  # Gets the user from the request context
