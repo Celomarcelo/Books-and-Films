@@ -11,7 +11,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'first_name', 'last_name', 'profile_image', 'biography', 'id']  # Fields included in serialization
+        fields = ['username', 'email', 'first_name', 'last_name', 'profile_image', 'biography', 'id', 'is_superuser']  # Fields included in serialization
 
     def update(self, instance, validated_data):
         profile_data = validated_data.pop('profile', None)  # Extracts profile data if available
@@ -95,7 +95,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         return obj.genre.name  # Retrieves the genre name for the review
     
     def get_category_id(self, obj):
-        return obj.genre.category.id if obj.genre and obj.genre.category else None
+        return obj.genre.category.id if obj.genre and obj.genre.category else None  # Retrieves category ID
 
     def create(self, validated_data):
         user = self.context['request'].user  # Gets the user from the request context
