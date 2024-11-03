@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['https://books-and-films-e41e6d4b185b.herokuapp.com/', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['https://books-and-films-e41e6d4b185b.herokuapp.com/']
 
 
 # Application definition
@@ -68,7 +68,7 @@ SIMPLE_JWT = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "https://books-and-films-e41e6d4b185b.herokuapp.com/",  
+    "https://books-and-films-e41e6d4b185b.herokuapp.com",  
 ]
 
 CORS_ALLOW_HEADERS = [
@@ -116,15 +116,8 @@ WSGI_APPLICATION = 'review_platform.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
 }
-
-DATABASE_URL = os.getenv('DATABASE_URL')
-if DATABASE_URL:
-    DATABASES['default'] = dj_database_url.config(default=DATABASE_URL, conn_max_age=600)
 
 
 # Password validation
