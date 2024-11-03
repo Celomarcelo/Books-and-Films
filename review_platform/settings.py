@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['https://books-and-films-api-e4ea62133d4f.herokuapp.com/', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['https://books-and-films-e41e6d4b185b.herokuapp.com/', 'localhost', '127.0.0.1']
 
 
 # Application definition
