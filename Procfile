@@ -1,1 +1,1 @@
-web: gunicorn review_plataform.wsgi --log-file -
+web: gunicorn review_platform.wsgi --log-file -
