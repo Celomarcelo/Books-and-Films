@@ -18,6 +18,10 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 
+def frontend(request):
+    return render(request, 'index.html')
+
+
 # Custom serializer for JWT token, adding additional user details
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod

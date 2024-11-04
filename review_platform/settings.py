@@ -176,3 +176,9 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'booksfilms14@gmail.com'
 EMAIL_HOST_PASSWORD = 'cdts cqnv ndjz kwnd'
+
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'frontend_build' / 'static',
+]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
