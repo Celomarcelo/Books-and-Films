@@ -31,7 +31,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-ALLOWED_HOSTS = ['https://books-and-films-e41e6d4b185b.herokuapp.com/']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -68,7 +68,7 @@ SIMPLE_JWT = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "https://books-and-films-e41e6d4b185b.herokuapp.com",  
+    "https://books-and-films-e41e6d4b185b.herokuapp.com",
 ]
 
 CORS_ALLOW_HEADERS = [
@@ -116,7 +116,10 @@ WSGI_APPLICATION = 'review_platform.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.config(conn_max_age=600, ssl_require=True)
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 
@@ -175,5 +178,3 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'booksfilms14@gmail.com'
 EMAIL_HOST_PASSWORD = 'cdts cqnv ndjz kwnd'
-
-
