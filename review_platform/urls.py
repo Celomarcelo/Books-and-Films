@@ -22,7 +22,7 @@ from django.conf.urls.static import static
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
-from . import views
+from reviews import views
 from reviews.views import (
     CustomTokenObtainPairView, 
     RegisterView, 
