@@ -71,7 +71,10 @@ CORS_ALLOWED_ORIGINS = [
     "https://books-and-films-e41e6d4b185b.herokuapp.com",
 ]
 
-CORS_ALLOW_HEADERS = ['*']
+CORS_ALLOW_HEADERS = [
+    "content-type",
+    "authorization",
+]
 CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 CORS_ALLOW_CREDENTIALS = True
 
@@ -85,6 +88,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 
