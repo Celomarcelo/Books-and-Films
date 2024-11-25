@@ -161,6 +161,9 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 WHITENOISE_ROOT = BASE_DIR / 'staticfiles' / 'build'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
@@ -179,8 +182,6 @@ EMAIL_HOST_USER = 'booksfilms14@gmail.com'
 EMAIL_HOST_PASSWORD = 'cdts cqnv ndjz kwnd'
 
 
-STATICFILES_DIRS = [
-    BASE_DIR / 'frontend_build' / 'static',
-]
+
 
 
