@@ -15,6 +15,9 @@ import os
 from datetime import timedelta
 import dj_database_url
 from dotenv import load_dotenv
+import cloudinary
+import cloudinary.api
+import cloudinary.uploader
 
 load_dotenv()
 
@@ -47,6 +50,8 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt.token_blacklist',
     'reviews',
     'corsheaders',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 REST_FRAMEWORK = {
@@ -72,9 +77,11 @@ CORS_ALLOWED_ORIGINS = [
 ]
 
 CORS_ALLOW_HEADERS = [
+    "accept",
     "content-type",
     "authorization",
 ]
+
 CORS_ALLOW_METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
 CORS_ALLOW_CREDENTIALS = True
 
@@ -164,6 +171,15 @@ WHITENOISE_ROOT = BASE_DIR / 'staticfiles' / 'build'
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
 ]
+
+# Cloudinary configuration for media file storage
+cloudinary.config(
+    cloudinary_url=os.getenv('CLOUDINARY_URL')
+)
+
+# Default storage for uploaded media files
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
