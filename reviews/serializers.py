@@ -48,7 +48,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     profile_image = serializers.ImageField(
         source='profile.image', allow_null=True, required=False)
-    biography = serializers.CharField(required=False)
+    biography = serializers.CharField(default="No biography available") 
 
     class Meta:
         model = Profile
