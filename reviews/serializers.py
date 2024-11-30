@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import Review, Profile, Genre, Category, Like, Comment
 from django.contrib.auth.models import User
-from django.templatetags.static import static
 
 # Serializer for User model, adding fields from associated Profile model
 class UserSerializer(serializers.ModelSerializer):
@@ -48,16 +47,11 @@ class CategorySerializer(serializers.ModelSerializer):
 class ProfileSerializer(serializers.ModelSerializer):
     profile_image = serializers.ImageField(
         source='profile.image', allow_null=True, required=False)
-    biography = serializers.CharField(default="No biography available") 
+    biography = serializers.CharField(required=False)
 
     class Meta:
         model = Profile
         fields = ['profile_image', 'biography']  # Fields included
-        
-    def get_profile_image(self, obj):
-        if obj.image:
-            return obj.image.url
-        return static('profile_images/default.jpg')
 
 # Serializer for User's favorite items with profile details
 class UserFavoriteSerializer(serializers.ModelSerializer):
