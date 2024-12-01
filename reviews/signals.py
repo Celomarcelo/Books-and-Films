@@ -7,7 +7,11 @@ from .models import Profile
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
     if created:  # Checks if a new User instance was created
-        Profile.objects.create(user=instance)  # Creates a Profile linked to the new User
+        profile_image = getattr(instance, '_profile_image', None)
+        Profile.objects.create(
+            user=instance,
+            image=profile_image if profile_image else 'static/default.jpg'
+        ) # Creates a Profile linked to the new User
 
 # Signal receiver to save the Profile whenever the User is saved
 @receiver(post_save, sender=User)

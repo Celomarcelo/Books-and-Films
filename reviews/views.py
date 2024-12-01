@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from rest_framework import viewsets, generics, status
-from .models import Review, Category, Genre, Like, Comment, Profile
+from .models import Review, Category, Genre, Like, Comment
 from .serializers import ReviewSerializer, UserSerializer, UserFavoriteSerializer, CategorySerializer, GenreSerializer, LikeSerializer, CommentSerializer
 from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -86,15 +86,12 @@ class RegisterView(generics.CreateAPIView):
         try:
             user = User(username=username, email=email)
             user.set_password(password)
+            
+            if profile_image:
+                setattr(user, '_profile_image', profile_image)
+            
             user.save()
-            
-            profile = Profile.objects.create(
-                user=user,
-                image=profile_image
-            )
-
-            profile.save()
-            
+                        
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
