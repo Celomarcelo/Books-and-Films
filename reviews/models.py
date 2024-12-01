@@ -34,7 +34,7 @@ class Review(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)  # User model
     favorites = models.ManyToManyField(User, related_name='favorited_by', blank=True)  # Field for favorite users
-    image = models.ImageField(upload_to='profile_images/', default='https://res.cloudinary.com/hj5u1bqkt/image/upload/v1733055127/default_vbaelo.jpg')  # Profile image with a default setting
+    image = models.ImageField(upload_to='profile_images/', default='default_gak8lh.jpg')  # Profile image with a default setting
     biography = models.TextField(blank=True, null=True)  # Optional biography field for user profile
 
     def __str__(self):
