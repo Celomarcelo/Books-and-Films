@@ -86,12 +86,12 @@ class RegisterView(generics.CreateAPIView):
         try:
             user = User(username=username, email=email)
             user.set_password(password)
-            
+
             if profile_image:
                 setattr(user, '_profile_image', profile_image)
-            
+
             user.save()
-                        
+
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -323,15 +323,43 @@ def search_reviews(request):
     query = request.query_params.get('q', None)
     if not query:
         return Response({"error": "Search query is required"}, status=400)
-
+    
+    # Search in reviews
     reviews = Review.objects.filter(
         Q(title__icontains=query) |
         Q(author_director__icontains=query) |
         Q(content__icontains=query)
     )
+    serialized_reviews = ReviewSerializer(reviews, many=True).data
 
-    serializer = ReviewSerializer(reviews, many=True)
-    return Response(serializer.data, status=200)
+    # Search in users
+    users = User.objects.filter(
+        Q(username__icontains=query) |
+        Q(email__icontains=query)
+    )
+    serialized_users = UserSerializer(users, many=True).data
+
+    # Search in categories
+    categories = Category.objects.filter(
+        Q(name__icontains=query)
+    )
+    serialized_categories = CategorySerializer(categories, many=True).data
+
+    # Search in genres
+    genres = Genre.objects.filter(
+        Q(name__icontains=query)
+    )
+    serialized_genres = GenreSerializer(genres, many=True).data
+
+    # Combine results
+    results = {
+        "reviews": serialized_reviews,
+        "users": serialized_users,
+        "categories": serialized_categories,
+        "genres": serialized_genres
+    }
+
+    return Response(results, status=200)
 
 
 # API view to like or unlike a review
@@ -394,13 +422,15 @@ def delete_comment(request, comment_id):
     return Response({"message": "Comment deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
 
 # API view to delete user profile
+
+
 class DeleteProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, *args, **kwargs):
         try:
             user = request.user
-            user.delete() 
+            user.delete()
             return Response({"message": "Profile deleted successfully."}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
