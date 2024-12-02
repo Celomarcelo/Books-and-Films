@@ -325,9 +325,7 @@ def search_reviews(request):
         return Response({"error": "Search query is required"}, status=400)
 
     reviews = Review.objects.filter(
-        Q(title__icontains=query) |
-        Q(author_director__icontains=query) |
-        Q(content__icontains=query)
+        Q(title__icontains=query)
     )
 
     serializer = ReviewSerializer(reviews, many=True)
