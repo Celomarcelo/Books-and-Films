@@ -392,3 +392,15 @@ def delete_comment(request, comment_id):
 
     comment.delete()
     return Response({"message": "Comment deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
+
+# API view to delete user profile
+class DeleteProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, *args, **kwargs):
+        try:
+            user = request.user
+            user.delete() 
+            return Response({"message": "Profile deleted successfully."}, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
