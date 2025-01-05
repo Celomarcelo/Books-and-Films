@@ -46,7 +46,8 @@ from reviews.views import (
     list_comments,
     add_comment,
     delete_comment,
-    DeleteProfileView
+    DeleteProfileView,
+    update_comment
 )
 
 
@@ -85,6 +86,7 @@ urlpatterns = [
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('user/profile/delete/', DeleteProfileView.as_view(), name='delete-profile'),
+    path('comments/<int:comment_id>/update/', update_comment, name='update_comment'),
     re_path(r'^(?:.*)/?$', views.frontend),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

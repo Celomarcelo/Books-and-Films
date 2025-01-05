@@ -86,12 +86,12 @@ class RegisterView(generics.CreateAPIView):
         try:
             user = User(username=username, email=email)
             user.set_password(password)
-            
+
             if profile_image:
                 setattr(user, '_profile_image', profile_image)
-            
+
             user.save()
-                        
+
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -391,6 +391,31 @@ def delete_comment(request, comment_id):
     comment.delete()
     return Response({"message": "Comment deleted successfully."}, status=status.HTTP_204_NO_CONTENT)
 
+
+# API view to edit a specific comment by its ID
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_comment(request, comment_id):
+    try:
+        comment = Comment.objects.get(id=comment_id, user=request.user)
+    except Comment.DoesNotExist:
+        return Response(
+            {"error": "Comment not found or you don't have permission to edit this comment."},
+            status=status.HTTP_404_NOT_FOUND
+        )
+
+    content = request.data.get('content', '').strip()
+
+    if not content:
+        return Response({"error": "Content field is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+    comment.content = content
+    comment.save()
+
+    serializer = CommentSerializer(comment)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 # API view to delete user profile
 class DeleteProfileView(APIView):
     permission_classes = [IsAuthenticated]
@@ -398,7 +423,7 @@ class DeleteProfileView(APIView):
     def delete(self, request, *args, **kwargs):
         try:
             user = request.user
-            user.delete() 
+            user.delete()
             return Response({"message": "Profile deleted successfully."}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
