@@ -34,7 +34,7 @@ class Review(models.Model):
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)  # User model
     favorites = models.ManyToManyField(User, related_name='favorited_by', blank=True)  # Field for favorite users
-    image = models.ImageField(upload_to='profile_images/', blank=True, null=True)  # Profile image with a default setting
+    image = models.ImageField(upload_to='profile_images/', blank=True, null=True,  default='static/default.jpg')  # Profile image with a default setting
     biography = models.TextField(default="No biography available", blank=True)  # Optional biography field for user profile
 
     def __str__(self):
