@@ -98,6 +98,7 @@ class RegisterView(generics.CreateAPIView):
         refresh = RefreshToken.for_user(user)
 
         return Response({
+            'message': 'User registered successfully.',
             'refresh': str(refresh),
             'access': str(refresh.access_token),
         })
@@ -112,14 +113,20 @@ def user_profile(request):
 
     if request.method == 'GET':
         serializer = UserSerializer(user, context={'request': request})
-        return Response(serializer.data)
+        return Response({
+            'message': 'User profile retrieved successfully.',
+            'data': serializer.data
+        })
 
     elif request.method == 'PUT':
         serializer = UserSerializer(user, data=request.data, context={
                                     'request': request}, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data)
+            return Response({
+                'message': 'User profile updated successfully.',
+                'data': serializer.data
+            })
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -153,7 +160,10 @@ def create_review(request):
 
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response({
+            'message': 'Review created successfully.',
+            'data': serializer.data
+        }, status=status.HTTP_201_CREATED)
 
         print(serializer.errors)
 
@@ -185,7 +195,10 @@ def edit_review(request, reviewId):
 
     if serializer.is_valid():
         serializer.save()
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        return JsonResponse({
+            'message': 'Review updated successfully.',
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
 
     return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
