@@ -104,4 +104,3 @@ class ReviewSerializer(serializers.ModelSerializer):
         return review  # Returns the newly created review
 
 
-

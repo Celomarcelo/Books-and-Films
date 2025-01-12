@@ -113,10 +113,7 @@ def user_profile(request):
 
     if request.method == 'GET':
         serializer = UserSerializer(user, context={'request': request})
-        return Response({
-            'message': 'User profile retrieved successfully.',
-            'data': serializer.data
-        })
+        return Response(serializer.data)
 
     elif request.method == 'PUT':
         serializer = UserSerializer(user, data=request.data, context={
