@@ -73,7 +73,7 @@ SIMPLE_JWT = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "https://books-and-films-e41e6d4b185b.herokuapp.com/",
+    "https://books-and-films-e41e6d4b185b.herokuapp.com",
 ]
 
 CORS_ALLOW_HEADERS = [
