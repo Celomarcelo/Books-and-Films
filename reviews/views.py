@@ -192,10 +192,7 @@ def edit_review(request, reviewId):
 
     if serializer.is_valid():
         serializer.save()
-        return JsonResponse({
-            'message': 'Review updated successfully.',
-            'data': serializer.data
-        }, status=status.HTTP_200_OK)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
 
     return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
